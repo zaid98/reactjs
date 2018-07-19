@@ -1,29 +1,37 @@
-import React from "react";
+import React, {Component} from "react";
 import { Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
-// export class Login extends React.Component {
-//
-// zaid()
-// {
-//    <h1>hello</h1>;
-// }
-//  render(){
-//    return(  <button onCLick={this.zaid} type="submit" class="btn btn-primary" id="login">Login</button>  );
-//   }
-//
-//
-// }
+import { Link,withRouter } from 'react-router-dom';
+import { auth } from '../firebase';
+import * as routes from '../constants/routes';
+import { SignUpLink } from './Signup';
+const Login = ({ history }) =>
+  <div>
+    <h1>SignIn</h1>
+    <Signinform history={history} />
+    <SignUpLink />
+  </div>
 
-export class Login extends React.Component {
-  constructor(props) {
+const byPropKey = (propertyName, value) => () => ({
+  [propertyName]: value,
+});
+
+const INITIAL_STATE = {
+  email: '',
+  password: '',
+  error: null,
+};
+
+
+export class Signinform extends React.Component{
+  constructor(props)
+   {
     super(props);
-
-    this.state = {
-      email: "",
-      password: ""
-    };
+    this.state = { ...INITIAL_STATE };
   }
 
-  validateForm() {
+
+  validateForm()
+  {
     return this.state.email.length > 0 && this.state.password.length > 0;
   }
 
@@ -34,10 +42,35 @@ export class Login extends React.Component {
   }
 
   handleSubmit = event => {
+    const {
+     email,
+     password,
+   } = this.state;
+
+
+   const {
+     history,
+   } = this.props;
+
+   auth.doSignInWithEmailAndPassword(email, password)
+     .then(() => {
+       this.setState(() => ({ ...INITIAL_STATE }));
+       history.push(routes.HOME);
+     })
+     .catch(error => {
+       this.setState(byPropKey('error', error));
+     });
+
     event.preventDefault();
   }
 
   render() {
+    const {
+    email,
+    password,
+    error,
+  } = this.state;
+
     return (
       <div className="Login">
         <form onSubmit={this.handleSubmit}>
@@ -58,6 +91,7 @@ export class Login extends React.Component {
               type="password"
             />
           </FormGroup>
+          
           <Button
             block
             bsSize="large"
@@ -71,3 +105,8 @@ export class Login extends React.Component {
     );
   }
 }
+export default withRouter(Login);
+//
+// export {
+//   Signinform
+// };
